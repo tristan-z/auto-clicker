@@ -1,0 +1,67 @@
+{
+  "children": [
+    {
+      "type": "CLICK",
+      "clickType": "LEFT_CLICK",
+      "pixelOffset": 5,
+      "xCoord": 963,
+      "yCoord": 502,
+      "iterations": {
+        "min": 1,
+        "max": 1,
+        "distribution": "linear"
+      }
+    },
+    {
+      "type": "COLOR_CLICK",
+      "clickType": "LEFT_CLICK",
+      "color": "#FF00FFFF",
+      "pixelOffset": 5,
+      "xCoords": [963, 994],
+      "yCoords": [502, 610],
+      "iterations": {
+        "min": 1,
+        "max": 1,
+        "distribution": "linear"
+      }
+    },
+    {
+      "type": "IMAGE_CLICK",
+      "clickType": "LEFT_CLICK",
+      "pixelOffset": 5,
+      "imagePath": "C:/SamplePath/SampleImage.png",
+      "confidence": 0.6,
+      "grayscale": false,
+      "iterations": {
+        "min": 1,
+        "max": 1,
+        "distribution": "linear"
+      }
+    },
+    {
+      "type": "KEY",
+      "action": "KEY_RELEASE",
+      "key": "SHIFT",
+      "iterations": {
+        "min": 1,
+        "max": 1,
+        "distribution": "linear"
+      }
+    },
+    {
+      "type": "DELAY",
+      "delayTime": 100,
+      "timeOffset": 100,
+      "iterations": {
+        "min": 1,
+        "max": 1,
+        "distribution": "linear"
+      }
+    }
+  ],
+  "iterations": {
+    "min": 5,
+    "max": 5,
+    "distribution": "linear"
+  }
+}
