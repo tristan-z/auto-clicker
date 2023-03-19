@@ -1,7 +1,6 @@
 import pyautogui
 import time
 import random
-from pynput import keyboard
 
 
 from .constants import (
@@ -10,7 +9,6 @@ from .constants import (
     KEY_PRESS,
     KEY_HOLD,
     KEY_RELEASE,
-    keyboard_key_map,
 )
 
 
@@ -18,7 +16,7 @@ def perform_click(x, y, offset, type):
     if offset > 0:
         x += random.randint(-offset, offset)
         y += random.randint(-offset, offset)
-    perform_delay(90, 15)
+    perform_delay_ms(90, 15)
     if type == LEFT_CLICK:
         pyautogui.click(x, y)
     elif type == RIGHT_CLICK:
@@ -39,7 +37,7 @@ def find_image(image_path, confidence=0.6, grayscale=False, region=None, attempt
             if attempt + 1 >= attempts:
                 raise Exception("Image not found within configured attempts.")
             else:
-                perform_delay(70, 50)
+                perform_delay_ms(70, 50)
     return x, y
 
 
@@ -50,10 +48,10 @@ def perform_image_click(
     perform_click(x, y, offset, type)
 
 
-def perform_delay(length, offset):
+def perform_delay_ms(length, offset):
     if offset > 0:
         length += random.randint(0, offset)
-    time.sleep(length)
+    time.sleep(length / 1000)
 
 
 def perform_numpress(num):
@@ -63,44 +61,14 @@ def perform_numpress(num):
 
 
 def perform_key_action(key, action):
-    ascii_key = keyboard_key_map.get(key)
     if action == KEY_PRESS:
-        pyautogui.press(ascii_key)
+        pyautogui.press(key)
     elif action == KEY_HOLD:
-        pyautogui.keyDown(ascii_key)
+        pyautogui.keyDown(key)
     elif action == KEY_RELEASE:
-        pyautogui.keyUp(ascii_key)
+        pyautogui.keyUp(key)
     else:
-        pyautogui.press(ascii_key)
-
-
-key_press_buffer = []
-
-
-def on_press(key):
-    try:
-        print("alphanumeric key {0} pressed".format(key.char))
-        key_press_buffer.append(ord(key.char))
-    except AttributeError:
-        print("special key {0} pressed".format(key))
-        print(type(key.value))
-        key_press_buffer.append(key.value)
-
-
-def on_release(key):
-    print("{0} released".format(key))
-    return False
-
-
-def capture_key_press():
-    # bypass releasing 'enter' that got us here
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        listener.join()
-    # read actual keyboard input
-    with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        listener.join()
-    if len(key_press_buffer):
-        return key_press_buffer[0]
+        pyautogui.press(key)
 
 
 def capture_mouse_coords():

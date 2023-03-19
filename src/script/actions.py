@@ -19,10 +19,8 @@ def calculate_value(value_obj):
 
 
 def handle_event(event):
-    """if should_cancel_script_execution():
-    return False"""
     notes = event.get("notes")
-    if False and notes:
+    if notes:
         print(notes)
     event_type = event["type"]
     if event_type == constants.CLICK_TYPE:
@@ -30,7 +28,7 @@ def handle_event(event):
             event["xCoord"], event["yCoord"], event["pixelOffset"], event["clickType"]
         )
     elif event_type == constants.DELAY_TYPE:
-        actions.perform_delay(event["delayTime"], event["timeOffset"])
+        actions.perform_delay_ms(event["delayTime"], event["timeOffset"])
     elif event_type == constants.NUM_TYPE:
         actions.perform_numpress(event["value"])
     elif event_type == constants.KEY_TYPE:
@@ -99,7 +97,8 @@ def run_script(script):
             on_press=on_key_press, on_release=on_key_release
         ) as listener:
             listener.join()
-        print("\nRunning Script\n")
+
+        print("\nStarting Script\n")
         success = execute_script(script)
         if not success:
             return False
@@ -115,7 +114,7 @@ def save_script(filename, script):
         # write jsons to file
         fout = open(filename, "w")
         sys.stdout = fout
-        print(script)
+        print(_script)
         sys.stdout = orig_stdout
         fout.close()
         print("\nScript Saved Successfully\n")
