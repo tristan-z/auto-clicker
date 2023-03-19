@@ -1,10 +1,10 @@
 import json
-from ..event import actions, constants
-import win32api
+from jsonschema import validate, ValidationError
+from event import actions, constants
+from pynput import keyboard
 import sys
 import random
-
-script_events = {}
+import schema_config
 
 
 # assumes min < max always
@@ -19,8 +19,8 @@ def calculate_value(value_obj):
 
 
 def handle_event(event):
-    if should_cancel_script_execution():
-        return False
+    """if should_cancel_script_execution():
+    return False"""
     notes = event.get("notes")
     if False and notes:
         print(notes)
@@ -76,28 +76,41 @@ def execute_script(script_segment, parent_iteration=0):
     return True
 
 
-def run_script():
-    if "iterations" not in script_events:
+def on_key_press(key):
+    try:
+        print("alphanumeric key {0} pressed".format(key.char))
+    except AttributeError:
+        print("special key {0} pressed".format(key))
+
+
+def on_key_release(key):
+    print("{0} released".format(key))
+    if key == keyboard.Key.tab:
+        # Stop listener
+        return False
+
+
+def run_script(script):
+    if "iterations" not in script:
         return False
     else:
         print('\nOpen Desired Screen and Press "TAB" to Begin\n')
-        while 1:
-            if start_script_option():
-                break
-            actions.perform_delay(70, 0)
+        with keyboard.Listener(
+            on_press=on_key_press, on_release=on_key_release
+        ) as listener:
+            listener.join()
         print("\nRunning Script\n")
-        success = execute_script(script_events)
+        success = execute_script(script)
         if not success:
             return False
         print("\nScript Completed\n")
         return True
 
 
-def save_script(filename):
+def save_script(filename, script):
     try:
         # convert storage lists to json
-        print("scriptEvents", script_events)
-        script = json.dumps(script_events)
+        _script = json.dumps(script)
         orig_stdout = sys.stdout
         # write jsons to file
         fout = open(filename, "w")
@@ -105,32 +118,20 @@ def save_script(filename):
         print(script)
         sys.stdout = orig_stdout
         fout.close()
-        print("Script Saved Successfully\n")
+        print("\nScript Saved Successfully\n")
     except:
         print("\nScript Failed To Save\n")
 
 
 def load_script(filename):
-    global script_events
     try:
-        script = open(filename, "r")
-        script_events = json.load(script)
-        script.close()
+        f = open(filename, "r")
+        script = json.load(f)
+        f.close()
+        validate(instance=script, schema=schema_config.schema)
         print("\nScript Loaded Successfully\n")
-    except:
-        print("\nScript Failed To Load\n")
-
-
-def should_cancel_script_execution():
-    stopKey = constants.keyboard_key_map.get("F12")
-    if win32api.GetKeyState(stopKey) & (1 << 7):
-        return True
-    return False
-
-
-def start_script_option():
-    # tab to start
-    startKey = 9
-    if win32api.GetKeyState(startKey) & (1 << 7):
-        return True
-    return False
+        return script
+    except ValidationError as e:
+        raise Exception("\nInvalid JSON format:\n{}\n".format(str(e)))
+    except Exception as e:
+        raise Exception("\nScript Failed To Load:\n{}\n".format(str(e)))
