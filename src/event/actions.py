@@ -1,6 +1,8 @@
 import pyautogui
 import time
 import random
+from .exceptions import FindImageError
+from utils.logger import log
 
 
 from .constants import (
@@ -26,18 +28,20 @@ def perform_click(x, y, offset, type):
 def find_image(image_path, confidence=0.6, grayscale=False, region=None, attempts=1):
     if region:
         region = tuple(region)
-    x = y = 0
+    x, y = 0, 0
     for attempt in range(attempts):
         try:
             x, y = pyautogui.locateCenterOnScreen(
                 image_path, confidence=confidence, grayscale=grayscale, region=region
             )
             break
-        except:
+        except pyautogui.ImageNotFoundException:
             if attempt + 1 >= attempts:
-                raise Exception("Image not found within configured attempts.")
+                raise FindImageError("Image not found within configured attempts.")
             else:
                 perform_delay_ms(70, 50)
+        except Exception as e:
+            raise FindImageError("Could not search for image:\n{}".format(e))
     return x, y
 
 
@@ -72,7 +76,7 @@ def perform_key_action(key, action):
 
 
 def capture_mouse_coords():
-    print("Move mouse to desired location. Press Ctrl-C to capture coords.")
+    log.info("Move mouse to desired location. Press Ctrl-C to capture coords.")
     try:
         while True:
             x, y = pyautogui.position()

@@ -1,48 +1,100 @@
-from .constants import *
+from enum import StrEnum
+from utils.logger import log
 
-class Click:
-	def __init__(self, clickType, pixelOffset, xCoord, yCoord):
-		self.type = CLICK_TYPE
-		self.clickType = clickType
-		self.pixelOffset = pixelOffset
-		self.xCoord = xCoord
-		self.yCoord = yCoord
+EVENT_TYPES = StrEnum(
+    "EVENT_TYPES",
+    ["CLICK", "COLOR_CLICK", "IMAGE_CLICK", "DELAY", "NUM", "KEY", "TEXT"],
+)
 
-class ClickColor:
-	def __init__(self, color, clickType, xCoords, yCoords):
-		self.type = COLOR_CLICK_TYPE
-		self.color = color
-		self.clickType = clickType
-		self.xCoordBounds = xCoords
-		self.yCoordBounds = yCoords
 
-class ClickImage:
-	def __init__(self, clickType, imageLocation, pixelOffset, confidence, grayscale):
-		self.type = IMAGE_CLICK_TYPE
-		self.clickType = clickType
-		self.imageLocation = imageLocation
-		self.pixelOffset = pixelOffset
-		self.confidence = confidence
-		self.grayscale = grayscale
+class Event:
+    def __init__(self, type, notes):
+        self.type = type
+        self.notes = notes
 
-class Delay:
-	def __init__(self, delayTime, timeOffset):
-		self.type = DELAY_TYPE
-		self.delayTime = delayTime #time in ms
-		self.timeOffset = timeOffset #range of time in ms offset
-	
-class Num:
-	def __init__(self, value):
-		self.type = NUM_TYPE
-		self.value = value
+    def print_notes(self):
+        if self.notes:
+            log.info(self.notes)
 
-class Key:
-	def __init__(self, key, action):
-		self.type = KEY_TYPE
-		self.key = str(key)
-		self.action = action
+    def get_type(self) -> str:
+        return self.type.__str__().upper()
 
-class Text:
-	def __init__(self, value):
-		self.type = TEXT_TYPE
-		self.value = value
+
+class ClickEvent(Event):
+    def __init__(self, event_type, click_type, pixel_offset, notes=None):
+        super().__init__(event_type, notes)
+
+        self.click_type = click_type
+        self.pixel_offset = pixel_offset
+
+
+class Click(ClickEvent):
+    def __init__(self, click_type, pixel_offset, x_coord, y_coord, notes=None):
+        super().__init__(EVENT_TYPES.CLICK, click_type, pixel_offset, notes)
+
+        self.x_coord = x_coord
+        self.y_coord = y_coord
+
+
+class ClickColor(ClickEvent):
+    def __init__(
+        self,
+        color,
+        click_type,
+        pixel_offset,
+        x_coord_bounds,
+        y_coord_bounds,
+        notes=None,
+    ):
+        super().__init__(EVENT_TYPES.COLOR_CLICK, click_type, pixel_offset, notes)
+
+        self.color = color
+        self.x_coord_bounds = x_coord_bounds
+        self.y_coord_bounds = y_coord_bounds
+
+
+class ClickImage(ClickEvent):
+    def __init__(
+        self,
+        click_type,
+        image_location,
+        pixel_offset,
+        confidence,
+        grayscale,
+        notes=None,
+    ):
+        super().__init__(EVENT_TYPES.IMAGE_CLICK, click_type, pixel_offset, notes)
+
+        self.image_location = image_location
+        self.confidence = confidence
+        self.grayscale = grayscale
+
+
+class Delay(Event):
+    def __init__(self, delay_time, time_offset, notes=None):
+        super().__init__(EVENT_TYPES.DELAY, notes)
+
+        self.delay_time = delay_time  # time in ms
+        self.time_offset = time_offset  # range of time in ms offset
+
+
+class Num(Event):
+    def __init__(self, value, notes=None):
+        super().__init__(EVENT_TYPES.NUM, notes)
+
+        self.value = value
+
+
+class Key(Event):
+    def __init__(self, key, action, notes=None):
+        super().__init__(EVENT_TYPES.KEY, notes)
+
+        self.key = str(key)
+        self.action = action
+
+
+class Text(Event):
+    def __init__(self, value, notes=None):
+        super().__init__(EVENT_TYPES.TEXT, notes)
+
+        self.value = value

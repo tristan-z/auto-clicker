@@ -3,19 +3,10 @@ from jsonschema import validate, ValidationError
 from event import actions, constants
 from pynput import keyboard
 import sys
-import random
 import schema_config
-
-
-# assumes min < max always
-def calculate_value(value_obj):
-    _min = value_obj["min"]
-    _max = value_obj["max"]
-    distribution = value_obj["distribution"]
-    if _min == _max:
-        return _min
-    if distribution == "linear":
-        return random.randint(_min, _max)
+from utils.logger import log
+from .exceptions import ScriptFileError
+from .utils import calculate_value
 
 
 def handle_event(event):
@@ -76,13 +67,13 @@ def execute_script(script_segment, parent_iteration=0):
 
 def on_key_press(key):
     try:
-        print("alphanumeric key {0} pressed".format(key.char))
+        log.debug("alphanumeric key {0} pressed".format(key.char))
     except AttributeError:
-        print("special key {0} pressed".format(key))
+        log.debug("special key {0} pressed".format(key))
 
 
 def on_key_release(key):
-    print("{0} released".format(key))
+    log.debug("{0} released".format(key))
     if key == keyboard.Key.tab:
         # Stop listener
         return False
@@ -92,17 +83,17 @@ def run_script(script):
     if "iterations" not in script:
         return False
     else:
-        print('\nOpen Desired Screen and Press "TAB" to Begin\n')
+        log.info('Open Desired Screen and Press "TAB" to Begin\n')
         with keyboard.Listener(
             on_press=on_key_press, on_release=on_key_release
         ) as listener:
             listener.join()
 
-        print("\nStarting Script\n")
+        log.info("\nStarting Script\n")
         success = execute_script(script)
         if not success:
             return False
-        print("\nScript Completed\n")
+        log.info("Script Completed\n")
         return True
 
 
@@ -114,12 +105,12 @@ def save_script(filename, script):
         # write jsons to file
         fout = open(filename, "w")
         sys.stdout = fout
-        print(_script)
+        log.debug(_script)
         sys.stdout = orig_stdout
         fout.close()
-        print("\nScript Saved Successfully\n")
-    except:
-        print("\nScript Failed To Save\n")
+        log.info("Script Saved Successfully\n")
+    except Exception as e:
+        raise ScriptFileError("Script Failed To Save:\n{}\n".format(str(e)))
 
 
 def load_script(filename):
@@ -128,9 +119,9 @@ def load_script(filename):
         script = json.load(f)
         f.close()
         validate(instance=script, schema=schema_config.schema)
-        print("\nScript Loaded Successfully\n")
+        log.info("Script Loaded Successfully\n")
         return script
     except ValidationError as e:
-        raise Exception("\nInvalid JSON format:\n{}\n".format(str(e)))
+        raise ScriptFileError("Invalid Script format:\n{}\n".format(str(e)))
     except Exception as e:
-        raise Exception("\nScript Failed To Load:\n{}\n".format(str(e)))
+        raise ScriptFileError("Script Failed To Load:\n{}\n".format(str(e)))
