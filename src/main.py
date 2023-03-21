@@ -2,7 +2,7 @@ import random
 import sys
 
 from script.actions import load_script, run_script
-from event.actions import capture_mouse_coords
+from utils.mouse import capture_mouse_coords
 from utils.logger import log
 
 

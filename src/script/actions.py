@@ -1,50 +1,37 @@
 import json
 from jsonschema import validate, ValidationError
-from event import actions, constants
+from event import constants
 from pynput import keyboard
 import sys
 import schema_config
 from utils.logger import log
 from .exceptions import ScriptFileError
 from .utils import calculate_value
+from event import events
 
 
-def handle_event(event):
-    notes = event.get("notes")
-    if notes:
-        print(notes)
-    event_type = event["type"]
-    if event_type == constants.CLICK_TYPE:
-        actions.perform_click(
-            event["xCoord"], event["yCoord"], event["pixelOffset"], event["clickType"]
-        )
-    elif event_type == constants.DELAY_TYPE:
-        actions.perform_delay_ms(event["delayTime"], event["timeOffset"])
-    elif event_type == constants.NUM_TYPE:
-        actions.perform_numpress(event["value"])
-    elif event_type == constants.KEY_TYPE:
-        actions.perform_key_action(event["key"], event["action"])
-    elif event_type == constants.TEXT_TYPE:
-        print("Text: %s" % (event["pText"]))
-    elif event_type == constants.IMAGE_CLICK_TYPE:
-        actions.perform_image_click(
-            event["clickType"],
-            event["imagePath"],
-            event["pixelOffset"],
-            event.get("confidence"),
-            event.get("grayscale"),
-            event.get("region"),
-            event.get("attempts"),
-        )
-    elif event_type == constants.IMAGE_FIND_TYPE:
-        actions.find_image(
-            event["imagePath"],
-            event.get("confidence"),
-            event.get("grayscale"),
-            event.get("region"),
-            event.get("attempts"),
-        )
-    return True
+def handle_event(event_config):
+    event = None
+
+    event_type = event_config["type"]
+    match event_type:
+        case constants.CLICK_TYPE:
+            event = events.Click(**event_config)
+        case constants.DELAY_TYPE:
+            event = events.Delay(**event_config)
+        case constants.NUM_TYPE:
+            event = events.Num(**event_config)
+        case constants.KEY_TYPE:
+            event = events.Key(**event_config)
+        case constants.IMAGE_CLICK_TYPE:
+            event = events.ClickImage(**event_config)
+        case constants.IMAGE_FIND_TYPE:
+            event = events.FindImage(**event_config)
+
+    if event == None:
+        raise Exception("Failed to execute event")
+    event.print_notes()
+    event.execute()
 
 
 def execute_script(script_segment, parent_iteration=0):
@@ -55,13 +42,9 @@ def execute_script(script_segment, parent_iteration=0):
         for itr in range(itrs):
             if "children" in script_segment:
                 for child in script_segment["children"]:
-                    success = execute_script(child, itr)
-                    if not success:
-                        return False
+                    execute_script(child, itr)
             else:
-                success = handle_event(script_segment)
-                if not success:
-                    return False
+                handle_event(script_segment)
     return True
 
 
@@ -90,9 +73,7 @@ def run_script(script):
             listener.join()
 
         log.info("\nStarting Script\n")
-        success = execute_script(script)
-        if not success:
-            return False
+        execute_script(script)
         log.info("Script Completed\n")
         return True
 
