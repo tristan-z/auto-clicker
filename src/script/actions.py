@@ -6,7 +6,7 @@ import sys
 import schema_config
 from utils.logger import log
 from .exceptions import ScriptFileError, ScriptExecutionError
-from .utils import calculate_value
+from .utils import calculate_itr_count, bypass_iteration
 from event import events
 
 
@@ -35,18 +35,15 @@ def handle_event(event_config):
     event.execute()
 
 
-def execute_script(script_segment, parent_iteration=0):
-    execution_modulo = script_segment.get("executionModulo")
-    bypass_execution = execution_modulo and ((parent_iteration + 1) % execution_modulo)
-    if not bypass_execution:
-        itrs = calculate_value(script_segment["iterations"])
+def execute_script(script_segment, parent_iter=0):
+    if not bypass_iteration(script_segment.get("execution_modulo"), parent_iter + 1):
+        itrs = calculate_itr_count(script_segment["iterations"])
         for itr in range(itrs):
             if "children" in script_segment:
                 for child in script_segment["children"]:
                     execute_script(child, itr)
             else:
                 handle_event(script_segment)
-    return True
 
 
 def on_key_press(key):
@@ -79,7 +76,7 @@ def run_script(script):
         except KeyboardInterrupt:
             log.info("Script Stopped.")
         else:
-            log.info("Script Completed\n")
+            log.info("Script Completed.")
 
 
 def save_script(filename, script):
