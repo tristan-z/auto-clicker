@@ -3,7 +3,7 @@ from utils.logger import log
 
 
 def capture_mouse_coords():
-    log.info("Move mouse to desired location. Press Ctrl-C to capture coords.")
+    log.info("Move mouse to desired location. Press Ctrl-C to exit.")
     try:
         while True:
             x, y = pyautogui.position()

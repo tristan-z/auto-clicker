@@ -64,18 +64,21 @@ def on_key_release(key):
 
 def run_script(script):
     if "iterations" not in script:
-        return False
+        raise ScriptFileError("Could not find iterations config in script.")
     else:
-        log.info('Open Desired Screen and Press "TAB" to Begin\n')
+        log.info('Press "TAB" to Begin.  Press Ctrl+C to exit.\n')
         with keyboard.Listener(
             on_press=on_key_press, on_release=on_key_release
         ) as listener:
             listener.join()
 
-        log.info("\nStarting Script\n")
-        execute_script(script)
-        log.info("Script Completed\n")
-        return True
+        log.info("Starting Script. Press Ctrl+C to stop.\n")
+        try:
+            execute_script(script)
+        except KeyboardInterrupt:
+            log.info("Script Stopped.")
+        else:
+            log.info("Script Completed\n")
 
 
 def save_script(filename, script):

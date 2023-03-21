@@ -9,7 +9,11 @@ from utils.logger import log
 def run_auto_clicker(file_path):
     script = load_script(file_path)
     while 1:
-        run_script(script)
+        try:
+            run_script(script)
+        except KeyboardInterrupt:
+            log.info("Exiting.")
+            break
 
 
 if __name__ == "__main__":
