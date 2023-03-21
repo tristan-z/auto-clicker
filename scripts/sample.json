@@ -3,7 +3,7 @@
     {
       "notes": "Sample Click Notes",
       "type": "CLICK",
-      "click_type": "LEFT_CLICK",
+      "click_type": "left",
       "pixel_offset": 5,
       "coords": [1100, 200],
       "iterations": {
@@ -14,7 +14,7 @@
     },
     {
       "type": "KEY",
-      "action": "KEY_RELEASE",
+      "action": "release",
       "key": "shift",
       "iterations": {
         "min": 1,
@@ -34,7 +34,7 @@
     },
     {
       "type": "CLICK",
-      "click_type": "RIGHT_CLICK",
+      "click_type": "right",
       "pixel_offset": 5,
       "coords": [100, 800],
       "iterations": {

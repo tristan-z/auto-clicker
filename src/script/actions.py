@@ -1,6 +1,6 @@
 import json
 from jsonschema import validate, ValidationError
-from event import constants
+from event.constants import EVENT_TYPES
 from pynput import keyboard
 import sys
 import schema_config
@@ -13,23 +13,24 @@ from event import events
 def handle_event(event_config):
     event = None
 
-    event_type = event_config["type"]
+    event_type = EVENT_TYPES[event_config["type"]]
     match event_type:
-        case constants.CLICK_TYPE:
+        case EVENT_TYPES.CLICK:
             event = events.Click(**event_config)
-        case constants.DELAY_TYPE:
+        case EVENT_TYPES.DELAY:
             event = events.Delay(**event_config)
-        case constants.NUM_TYPE:
+        case EVENT_TYPES.NUM:
             event = events.Num(**event_config)
-        case constants.KEY_TYPE:
+        case EVENT_TYPES.KEY:
             event = events.Key(**event_config)
-        case constants.IMAGE_CLICK_TYPE:
+        case EVENT_TYPES.IMAGE_CLICK:
             event = events.ClickImage(**event_config)
-        case constants.IMAGE_FIND_TYPE:
+        case EVENT_TYPES.IMAGE_FIND:
             event = events.FindImage(**event_config)
 
     if event == None:
         raise ScriptExecutionError("Failed to execute event")
+
     event.print_notes()
     event.execute()
 

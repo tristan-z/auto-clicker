@@ -1,13 +1,19 @@
-CLICK_TYPE = "CLICK"
-COLOR_CLICK_TYPE = "COLOR_CLICK"
-IMAGE_CLICK_TYPE = "IMAGE_CLICK"
-IMAGE_FIND_TYPE = "IMAGE_FIND"
-DELAY_TYPE = "DELAY"
-NUM_TYPE = "NUM"
-KEY_TYPE = "KEY"
-KEY_HOLD = "KEY_HOLD"
-KEY_RELEASE = "KEY_RELEASE"
-KEY_PRESS = "KEY_PRESS"
-TEXT_TYPE = "TEXT"
-LEFT_CLICK = "LEFT_CLICK"
-RIGHT_CLICK = "RIGHT_CLICK"
+from enum import StrEnum
+
+EVENT_TYPES = StrEnum(
+    "EVENT_TYPES",
+    [
+        "CLICK",
+        "COLOR_CLICK",
+        "IMAGE_CLICK",
+        "IMAGE_FIND",
+        "DELAY",
+        "NUM",
+        "KEY",
+        "TEXT",
+    ],
+)
+
+KEY_ACTIONS = StrEnum("KEY_ACTIONS", ["press", "release", "hold"])
+
+CLICK_TYPES = StrEnum("CLICK_TYPES", ["left", "right"])

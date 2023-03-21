@@ -1,4 +1,5 @@
 from pyautogui import KEYBOARD_KEYS
+from event.constants import CLICK_TYPES, KEY_ACTIONS
 
 schema = {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -14,7 +15,7 @@ schema = {
                         "properties": {
                             "notes": {"$ref": "#/$defs/notes"},
                             "type": {"const": "CLICK"},
-                            "click_type": {"enum": ["LEFT_CLICK", "RIGHT_CLICK"]},
+                            "click_type": {"$ref": "#/$defs/click_type"},
                             "pixel_offset": {"type": "integer"},
                             "coords": {
                                 "type": "array",
@@ -43,9 +44,7 @@ schema = {
                         "properties": {
                             "notes": {"$ref": "#/$defs/notes"},
                             "type": {"const": "KEY"},
-                            "click_type": {
-                                "enum": ["KEY_PRESS", "KEY_HOLD", "KEY_RELEASE"]
-                            },
+                            "click_type": {"enum": [k.__str__() for k in KEY_ACTIONS]},
                             "key": {"enum": KEYBOARD_KEYS},
                             "execution_modulo": {"$ref": "#/$defs/execution_modulo"},
                             "iterations": {"$ref": "#/$defs/iterations"},
@@ -57,7 +56,7 @@ schema = {
                         "properties": {
                             "notes": {"$ref": "#/$defs/notes"},
                             "type": {"const": "IMAGE_CLICK"},
-                            "click_type": {"enum": ["LEFT_CLICK", "RIGHT_CLICK"]},
+                            "click_type": {"$ref": "#/$defs/click_type"},
                             "pixel_offset": {"type": "integer"},
                             "image_path": {"type": "string"},
                             "confidence": {"type": "number"},
@@ -101,6 +100,7 @@ schema = {
     "$defs": {
         "notes": {"type": "string"},
         "execution_modulo": {"type": "integer"},
+        "click_type": {"enum": [t.__str__() for t in CLICK_TYPES]},
         "iterations": {
             "type": "object",
             "properties": {

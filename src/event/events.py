@@ -2,24 +2,10 @@ import pyautogui
 import random
 import time
 from abc import ABC, abstractclassmethod
-from enum import StrEnum
 from utils.logger import log
 from .exceptions import FindImageError
-from .constants import *
+from .constants import EVENT_TYPES, KEY_ACTIONS, CLICK_TYPES
 
-EVENT_TYPES = StrEnum(
-    "EVENT_TYPES",
-    [
-        "CLICK",
-        "COLOR_CLICK",
-        "IMAGE_CLICK",
-        "IMAGE_FIND",
-        "DELAY",
-        "NUM",
-        "KEY",
-        "TEXT",
-    ],
-)
 
 """
 Event Base Classes
@@ -35,8 +21,8 @@ class Event(ABC):
         if self.notes:
             log.info(self.notes)
 
-    def get_type(self) -> str:
-        return self.type.__str__().upper()
+    def get_type_str(self) -> str:
+        return self.type.__str__()
 
     @abstractclassmethod
     def execute(self):
@@ -101,11 +87,9 @@ class ClickEvent(Event):
         if pixel_offset > 0:
             x += random.randint(-pixel_offset, pixel_offset)
             y += random.randint(-pixel_offset, pixel_offset)
-            Delay.perform_delay_ms(90, 15)
-        if click_type == LEFT_CLICK:
-            pyautogui.click(x, y)
-        elif click_type == RIGHT_CLICK:
-            pyautogui.click(x, y, button="right")
+        Delay.perform_delay_ms(90, 15)
+        button = CLICK_TYPES[click_type].__str__()
+        pyautogui.click(x, y, button=button)
 
 
 """
@@ -239,14 +223,15 @@ class Key(Event):
 
     @staticmethod
     def perform_key_action(key, action):
-        if action == KEY_PRESS:
-            pyautogui.press(key)
-        elif action == KEY_HOLD:
-            pyautogui.keyDown(key)
-        elif action == KEY_RELEASE:
-            pyautogui.keyUp(key)
-        else:
-            pyautogui.press(key)
+        match KEY_ACTIONS[action]:
+            case KEY_ACTIONS.press:
+                pyautogui.press(key)
+            case KEY_ACTIONS.hold:
+                pyautogui.keyDown(key)
+            case KEY_ACTIONS.release:
+                pyautogui.keyUp(key)
+            case _:
+                pyautogui.press(key)
 
     def execute(self):
         self.perform_key_action(self.key, self.action)
