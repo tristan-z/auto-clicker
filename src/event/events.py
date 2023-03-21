@@ -2,7 +2,7 @@ import pyautogui
 import random
 import time
 from abc import ABC, abstractclassmethod
-from utils.logger import log
+from utils.logger import log, log_if_exists
 from .exceptions import FindImageError
 from .constants import EVENT_TYPES, KEY_ACTIONS, CLICK_TYPES
 
@@ -18,8 +18,7 @@ class Event(ABC):
         self.notes = notes
 
     def print_notes(self):
-        if self.notes:
-            log.info(self.notes)
+        log_if_exists(self.notes)
 
     def get_type_str(self) -> str:
         return self.type.__str__()
@@ -87,7 +86,6 @@ class ClickEvent(Event):
         if pixel_offset > 0:
             x += random.randint(-pixel_offset, pixel_offset)
             y += random.randint(-pixel_offset, pixel_offset)
-        Delay.perform_delay_ms(90, 15)
         button = CLICK_TYPES[click_type].__str__()
         pyautogui.click(x, y, button=button)
 

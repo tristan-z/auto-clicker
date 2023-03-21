@@ -4,7 +4,7 @@ from event.constants import EVENT_TYPES
 from pynput import keyboard
 import sys
 import schema_config
-from utils.logger import log
+from utils.logger import log, log_if_exists
 from .exceptions import ScriptFileError, ScriptExecutionError
 from .utils import calculate_itr_count, bypass_iteration
 from event import events
@@ -31,12 +31,12 @@ def handle_event(event_config):
     if event == None:
         raise ScriptExecutionError("Failed to execute event")
 
-    event.print_notes()
     event.execute()
 
 
 def execute_script(script_segment, parent_iter=0):
     if not bypass_iteration(script_segment.get("execution_modulo"), parent_iter + 1):
+        log_if_exists(script_segment.get("notes"))
         itrs = calculate_itr_count(script_segment["iterations"])
         for itr in range(itrs):
             if "children" in script_segment:

@@ -22,3 +22,8 @@ if WRITE_LOGS:
     handler.setFormatter(formatter)
 
     log.addHandler(handler)
+
+
+def log_if_exists(s):
+    if s:
+        log.info(s)

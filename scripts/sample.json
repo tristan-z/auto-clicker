@@ -44,6 +44,48 @@
       }
     },
     {
+      "notes": "sample nested children events w/ execution modulo",
+      "children": [
+        {
+          "type": "CLICK",
+          "click_type": "left",
+          "pixel_offset": 5,
+          "coords": [100, 800],
+          "iterations": {
+            "min": 1,
+            "max": 1,
+            "distribution": "linear"
+          }
+        },
+        {
+          "type": "KEY",
+          "action": "press",
+          "key": "c",
+          "iterations": {
+            "min": 1,
+            "max": 1,
+            "distribution": "linear"
+          }
+        },
+        {
+          "type": "DELAY",
+          "delay_time": 300,
+          "time_offset": 100,
+          "iterations": {
+            "min": 1,
+            "max": 1,
+            "distribution": "linear"
+          }
+        }
+      ],
+      "iterations": {
+        "min": 3,
+        "max": 3,
+        "distribution": "linear"
+      },
+      "execution_modulo": 2
+    },
+    {
       "type": "DELAY",
       "delay_time": 1000,
       "time_offset": 100,

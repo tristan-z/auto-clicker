@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch
 from event.constants import EVENT_TYPES
 from script.actions import handle_event, run_script, execute_script, load_script
 from script.exceptions import ScriptFileError
@@ -16,7 +16,6 @@ class TestHandleEvent(unittest.TestCase):
         }
         handle_event(event_config)
         mock_click.assert_called_with(**event_config)
-        mock_click.return_value.print_notes.assert_called_once()
         mock_click.return_value.execute.assert_called_once()
 
     @patch("event.events.Delay")
@@ -24,7 +23,6 @@ class TestHandleEvent(unittest.TestCase):
         event_config = {"type": upper_str_of_enum(EVENT_TYPES.DELAY), "delay_time": 5}
         handle_event(event_config)
         mock_delay.assert_called_with(**event_config)
-        mock_delay.return_value.print_notes.assert_called_once()
         mock_delay.return_value.execute.assert_called_once()
 
     @patch("event.events.Num")
@@ -32,7 +30,6 @@ class TestHandleEvent(unittest.TestCase):
         event_config = {"type": upper_str_of_enum(EVENT_TYPES.NUM), "value": 123}
         handle_event(event_config)
         mock_num.assert_called_with(**event_config)
-        mock_num.return_value.print_notes.assert_called_once()
         mock_num.return_value.execute.assert_called_once()
 
     @patch("event.events.Key")
@@ -40,7 +37,6 @@ class TestHandleEvent(unittest.TestCase):
         event_config = {"type": upper_str_of_enum(EVENT_TYPES.KEY), "key": 123}
         handle_event(event_config)
         mock_num.assert_called_with(**event_config)
-        mock_num.return_value.print_notes.assert_called_once()
         mock_num.return_value.execute.assert_called_once()
 
     @patch("event.events.ClickImage")
@@ -51,7 +47,6 @@ class TestHandleEvent(unittest.TestCase):
         }
         handle_event(event_config)
         mock_num.assert_called_with(**event_config)
-        mock_num.return_value.print_notes.assert_called_once()
         mock_num.return_value.execute.assert_called_once()
 
     @patch("event.events.FindImage")
@@ -62,7 +57,6 @@ class TestHandleEvent(unittest.TestCase):
         }
         handle_event(event_config)
         mock_num.assert_called_with(**event_config)
-        mock_num.return_value.print_notes.assert_called_once()
         mock_num.return_value.execute.assert_called_once()
 
     @patch("event.events.Delay")
@@ -74,7 +68,6 @@ class TestHandleEvent(unittest.TestCase):
         }
         handle_event(event_config)
         mock_click.assert_called_with(**event_config)
-        mock_click.return_value.print_notes.assert_called_once()
         mock_click.return_value.execute.assert_called_once()
         mock_delay.assert_not_called()
 
