@@ -5,7 +5,7 @@ from pynput import keyboard
 import sys
 import schema_config
 from utils.logger import log
-from .exceptions import ScriptFileError
+from .exceptions import ScriptFileError, ScriptExecutionError
 from .utils import calculate_value
 from event import events
 
@@ -29,7 +29,7 @@ def handle_event(event_config):
             event = events.FindImage(**event_config)
 
     if event == None:
-        raise Exception("Failed to execute event")
+        raise ScriptExecutionError("Failed to execute event")
     event.print_notes()
     event.execute()
 
