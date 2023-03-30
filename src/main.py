@@ -14,6 +14,8 @@ def run_auto_clicker(file_path):
         except KeyboardInterrupt:
             log.info("Exiting.")
             break
+        except Exception as e:
+            log.error("Error encountered when running script. {}".format(str(e)))
 
 
 if __name__ == "__main__":

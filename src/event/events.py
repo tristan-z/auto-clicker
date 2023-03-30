@@ -13,8 +13,8 @@ Event Base Classes
 
 
 class Event(ABC):
-    def __init__(self, type, notes=None):
-        self.type = type
+    def __init__(self, event_type, notes=None, **kwargs):
+        self.type = event_type
         self.notes = notes
 
     def print_notes(self):
@@ -38,6 +38,7 @@ class ImageEvent(Event):
         region=None,
         attempts=1,
         notes=None,
+        **kwargs,
     ):
         super().__init__(event_type, notes)
 
@@ -57,31 +58,30 @@ class ImageEvent(Event):
         for attempt in range(attempts):
             try:
                 x, y = pyautogui.locateCenterOnScreen(
-                    image_path,
+                    image=image_path,
                     confidence=confidence,
                     grayscale=grayscale,
                     region=region,
                 )
                 break
-            except pyautogui.ImageNotFoundException:
+            except (pyautogui.ImageNotFoundException, Exception):
                 if attempt + 1 >= attempts:
                     raise FindImageError("Image not found within configured attempts.")
                 else:
+                    log.debug("Image not found, retrying search.")
                     Delay.perform_delay_ms(70, 50)
-            except Exception as e:
-                raise FindImageError("Could not search for image:\n{}".format(e))
         return x, y
 
 
 class ClickEvent(Event):
-    def __init__(self, event_type, click_type, pixel_offset, notes=None):
+    def __init__(self, event_type, click_type, pixel_offset, notes=None, **kwargs):
         super().__init__(event_type, notes)
 
         self.click_type = click_type
         self.pixel_offset = pixel_offset
 
     @staticmethod
-    def perform_click(coords, pixel_offset, click_type):
+    def perform_click(coords, click_type, pixel_offset=0):
         x, y = coords
         if pixel_offset > 0:
             x += random.randint(-pixel_offset, pixel_offset)
@@ -102,43 +102,31 @@ class Click(ClickEvent):
         self.coords = coords
 
     def execute(self):
-        super().perform_click(self.coords, self.pixel_offset, self.click_type)
+        super().perform_click(self.coords, self.click_type, self.pixel_offset)
 
 
-class ClickImage(ImageEvent, ClickEvent):
+class ClickImage(ImageEvent):
     def __init__(
         self,
         click_type,
         pixel_offset,
         image_path,
-        confidence,
-        grayscale,
-        region,
-        attempts,
-        notes=None,
         **kwargs,
     ):
-        super().__init__(
-            EVENT_TYPES.IMAGE_FIND,
-            image_path,
-            confidence,
-            grayscale,
-            region,
-            attempts,
-            notes,
-        )
-        super().__init__(EVENT_TYPES.IMAGE_CLICK, click_type, pixel_offset, notes)
-
-        self.image_path = image_path
-        self.confidence = confidence
-        self.grayscale = grayscale
+        super().__init__(EVENT_TYPES.IMAGE_FIND, image_path, **kwargs)
+        self.click_type = click_type
+        self.pixel_offset = pixel_offset
 
     @staticmethod
     def perform_image_click(
-        type, image_path, offset, confidence, grayscale, region, attempts
+        click_type, image_path, offset, confidence, grayscale, region, attempts
     ):
-        x, y = super().find_image(image_path, confidence, grayscale, region, attempts)
-        super().perform_click([x, y], offset, type)
+        x, y = ImageEvent.find_image(
+            image_path, confidence, grayscale, region, attempts
+        )
+        log.debug("Center of image found: ({},{})".format(str(x), str(y)))
+        # TODO: investigate if the x,y "//2" logic works on all sceen res
+        ClickEvent.perform_click([x // 2, y // 2], click_type, offset)
 
     def execute(self):
         self.perform_image_click(

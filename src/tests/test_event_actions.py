@@ -14,7 +14,7 @@ class TestClickEvents(unittest.TestCase):
         mock_offset = 0
         mock_click_type = CLICK_TYPES.left.__str__()
 
-        ClickEvent.perform_click(mock_coords, mock_offset, mock_click_type)
+        ClickEvent.perform_click(mock_coords, mock_click_type, mock_offset)
         mock_click.assert_called_with(mock_x, mock_y, button=mock_click_type)
 
     @patch("event.events.random.randint")
@@ -25,7 +25,7 @@ class TestClickEvents(unittest.TestCase):
         mock_offset = 5
         mock_click_type = CLICK_TYPES.left.__str__()
 
-        ClickEvent.perform_click(mock_coords, mock_offset, mock_click_type)
+        ClickEvent.perform_click(mock_coords, mock_click_type, mock_offset)
         mock_randint.assert_called_with(mock_offset * -1, mock_offset)
 
 
