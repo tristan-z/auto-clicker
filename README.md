@@ -28,9 +28,11 @@ python3 main.py
 
 ### Execute Script
 
-Create a script file, following the format enforced by the JSON Schema: `src/schema_config.py`
+Create a script file, following the format enforced by the JSON Schema: `scripts/docs/auto-clicker-input.schema.json`
 
 A sample script can be found in `scripts/sample.json`
+
+Schema docs can be found in `scripts/docs`
 
 From `src` execute the following:
 
